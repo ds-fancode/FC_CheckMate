@@ -1,3 +1,5 @@
+import {ReactNode} from 'react'
+
 export interface ITestListTable {
   section: ReactNode
   sectionHierarchy: ReactNode
@@ -49,4 +51,11 @@ export interface ProjectData {
   createdOn: Date
   orgId: number
   status: string
+}
+
+export enum ProjectActions {
+  AddTest = 'Test',
+  AddLabel = 'Label',
+  AddSquad = 'Squad',
+  CreateRun = 'Run',
 }

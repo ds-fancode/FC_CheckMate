@@ -12,13 +12,18 @@ import {
 import logo from '../../assets/logo.png'
 import {ORG_ID} from '@route/utils/constants'
 import {APP_NAME} from '~/constants'
+import {Button} from '@ui/button'
+import {useCustomNavigate} from '@hooks/useCustomNavigate'
+import {useState} from 'react'
 
 export const SideDrawer = () => {
   const orgId = ORG_ID
+  const navigate = useCustomNavigate()
+  const [sideDrawerOpen, setSideDrawerOpen] = useState<boolean>(false)
 
   return (
-    <Sheet key="left">
-      <SheetTrigger>
+    <Sheet open={sideDrawerOpen} onOpenChange={setSideDrawerOpen} key="left">
+      <SheetTrigger onClick={() => setSideDrawerOpen(true)}>
         <img
           className="flex items-center space-x-4 cursor-pointer my-2"
           src={logo}
@@ -37,22 +42,43 @@ export const SideDrawer = () => {
         <div className="flex flex-col justify-between h-16 mt-8">
           <div className="items-center">
             <SheetClose asChild>
-              <Link
-                to={`/projects?orgId=${orgId}&page=1&pageSize=10`}
-                className="text-black hover:text-pale-blue font-medium">
-                <span>Projects List</span>
-              </Link>
+              <Button
+                onClick={(e) => {
+                  setSideDrawerOpen(false)
+                  navigate(`/projects?orgId=${orgId}&page=1&pageSize=10`, {}, e)
+                }}
+                className="font-semibold p-0"
+                variant={'link'}>
+                <text className="text-lg">Projects</text>
+              </Button>
             </SheetClose>
           </div>
         </div>
         <div className="h-3/4 flex flex-col">
-          <div className="mt-auto">
+          <div className="flex flex-col gap-2 mt-auto">
             <a
-              href="https://docs.google.com/your-doc-link-here" // Replace with your Google Docs link
+              onClick={() => setSideDrawerOpen(false)}
+              href="https://checkmate.dreamsportslabs.com" // Replace with your Google Docs link
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-500 hover:text-pale-blue font-bold">
+              className="text-blue-500 hover:text-pale-blue font-semibold">
               Documentation
+            </a>
+            <a
+              onClick={() => setSideDrawerOpen(false)}
+              href="https://discord.com/channels/1317172052179943504/1329754684730380340" // Replace with your Google Docs link
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:text-pale-blue font-semibold">
+              Ask Question
+            </a>
+            <a
+              onClick={() => setSideDrawerOpen(false)}
+              href="https://github.com/dream-sports-labs/checkmate/issues/new?template=Blank+issue" // Replace with your Google Docs link
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:text-pale-blue font-semibold">
+              Report Issue
             </a>
           </div>
         </div>

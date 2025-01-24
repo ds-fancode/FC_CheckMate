@@ -23,12 +23,16 @@ export const SectionInfoBox = () => {
       description:
         'Clicking on a section or ">" will toggle its subsections view.',
     },
+    {
+      description:
+        'Tests belonging to any of the selected sections will be shown.',
+    },
   ]
 
   return (
     <HoverCard>
       <HoverCardTrigger>
-        <Info size={16} className="self-center align-middle ml-2" />
+        <Info size={16} className="self-center align-middle ml-2 mt-1" />
       </HoverCardTrigger>
       <HoverCardContent className="min-w-80 text-sm font-normal">
         <ul className="ml-6 list-disc [&>li]:mt-2">
