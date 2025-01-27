@@ -23,7 +23,7 @@ describe('EnforcerManager', () => {
     const enforcer = await getEnforcer()
 
     expect(newEnforcer).toHaveBeenCalledWith(
-      expect.stringContaining('/app/services/rbac/model.conf'),
+      expect.stringContaining('/rbac_model.conf'),
       expect.any(DrizzleAdapter),
     )
 
@@ -37,7 +37,7 @@ describe('EnforcerManager', () => {
 
     expect(newEnforcer).toHaveBeenCalledTimes(1)
     expect(newEnforcer).toHaveBeenCalledWith(
-      expect.stringContaining('/app/services/rbac/model.conf'),
+      expect.stringContaining('/rbac_model.conf'),
       expect.any(DrizzleAdapter),
     )
 
