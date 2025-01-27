@@ -6,7 +6,6 @@ import {
   TestListFilter,
 } from '@components/MultipleUnifiedFilter/MultipleUnifiedFilter'
 import {StatusFilterOptions} from '@components/MultipleUnifiedFilter/staticFiltersData'
-import {Lables, Platforms} from '@components/TestsFilter/SelectLabelsAndSquads'
 import {ToggleColumns} from '@components/ToggleColums'
 import {
   useFetcher,
@@ -29,14 +28,14 @@ import {SearchBar} from '~/components/SearchBar/SearchBar'
 import {RunTestListResponseType} from '~/routes/project.$projectId.run.$runId._index'
 import {API} from '~/routes/utilities/api'
 import {MED_PAGE_SIZE, ORG_ID} from '~/routes/utilities/constants'
-import {safeJsonParse} from '~/routes/utilities/utils'
+import {Lables, Platforms} from '~/screens/CreateRun/RunFilter'
 import {AddResultDialog} from '~/screens/RunTestList/AddResultDialog'
 import {Squad} from '~/screens/RunTestList/interfaces'
 import {RunMetaData} from '~/screens/RunTestList/RunMetaData'
 import {RunTestListColumnConfig} from '~/screens/RunTestList/RunTestListColumnConfig'
 import {Skeleton} from '~/ui/skeleton'
 import {cn} from '~/ui/utils'
-import {TestListFilters} from '../TestList/TestListFilters'
+import {TestsFilters} from '../TestList/TestListFilters'
 import {FilterNames} from '../TestList/testTable.interface'
 import {DownLoadTests} from './DownLoadTests'
 import {RunActions} from './RunActions'
@@ -169,6 +168,12 @@ export default function RunTestList() {
   }
 
   let filterType: MultipleUnifiedFilterProps['filterType']
+  if (searchParams.has('filterType')) {
+    filterType =
+      (searchParams.get(
+        'filterType',
+      ) as MultipleUnifiedFilterProps['filterType']) ?? 'and'
+  }
 
   useEffect(() => {
     const squads = squadsFetcher.data?.data
@@ -428,76 +433,6 @@ export default function RunTestList() {
     })
   }
 
-  useEffect(() => {
-    if (searchParams.has('squadIds')) {
-      const squadIds = safeJsonParse(searchParams.get('squadIds') as string)
-      if (squadIds && squadIds?.length > 0) {
-        for (let index in filter) {
-          if (filter[index].filterName === FilterNames.Squad) {
-            filter[index].filterOptions.forEach((option) => {
-              if (squadIds.includes(option.id)) {
-                option.checked = true
-              }
-            })
-            break
-          }
-        }
-      }
-    }
-
-    if (searchParams.has('labelIds')) {
-      const labelIds = safeJsonParse(searchParams.get('labelIds') as string)
-      if (labelIds && labelIds?.length > 0) {
-        for (let index in filter) {
-          if (filter[index].filterName === FilterNames.Label) {
-            filter[index].filterOptions.forEach((option) => {
-              if (labelIds.includes(option.id)) {
-                option.checked = true
-              }
-            })
-            break
-          }
-        }
-      }
-    }
-
-    if (searchParams.has('statusArray')) {
-      const statusArray = safeJsonParse(
-        searchParams.get('statusArray') as string,
-      )
-      if (statusArray && statusArray?.length > 0) {
-        for (let index in filter) {
-          if (filter[index].filterName === FilterNames.Status) {
-            filter[index].filterOptions.forEach((option) => {
-              if (statusArray.includes(option.id)) {
-                option.checked = true
-              }
-            })
-            break
-          }
-        }
-      }
-    }
-
-    if (searchParams.has('platformIds')) {
-      const platformIds = safeJsonParse(
-        searchParams.get('platformIds') as string,
-      )
-      if (platformIds && platformIds?.length > 0) {
-        for (let index in filter) {
-          if (filter[index].filterName === FilterNames.Platform) {
-            filter[index].filterOptions.forEach((option) => {
-              if (platformIds.includes(option.id)) {
-                option.checked = true
-              }
-            })
-            break
-          }
-        }
-      }
-    }
-  }, [searchParams])
-
   return (
     <div className={cn('flex flex-col py-6 h-full w-full')}>
       <div className={'flex items-center mb-4'}>
@@ -539,7 +474,7 @@ export default function RunTestList() {
             />
           )}
 
-          <TestListFilters
+          <TestsFilters
             filter={filter}
             setFilter={setFilter}
             onFilterApply={onFilterApply}

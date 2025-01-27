@@ -1,7 +1,11 @@
-import {Auth} from '@services/auth/Auth.server' // Adjust the path as necessary
+import {Auth} from '@services/auth/Auth.server'
 import {SessionStorageService} from '~/services/auth/session'
 import UsersController from '~/dataController/users.controller'
-import {AuthenticatorRoutes} from '~/services/auth/interfaces'
+import {
+  AUTH_PROVIDER,
+  AuthenticatorRoutes,
+  SESSION_NAME,
+} from '~/services/auth/interfaces'
 
 jest.mock('~/services/auth/session')
 jest.mock('~/dataController/users.controller')
@@ -21,7 +25,7 @@ describe('Auth Service', () => {
 
     mockSession = {
       get: jest.fn((key: string) =>
-        key === '_session' ? {ssoId: 'mockSsoId'} : null,
+        key === SESSION_NAME ? {ssoId: 'mockSsoId'} : null,
       ),
       set: jest.fn(),
       unset: jest.fn(),
@@ -55,7 +59,7 @@ describe('Auth Service', () => {
       expect(result.user).toEqual({
         ssoId: 'mockSsoId',
       })
-      expect(mockSession.set).toHaveBeenCalledWith('_session', {
+      expect(mockSession.set).toHaveBeenCalledWith(SESSION_NAME, {
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
@@ -70,7 +74,7 @@ describe('Auth Service', () => {
 
       const result = await new Auth().getUser(mockRequest)
 
-      expect(mockSession.unset).toHaveBeenCalledWith('_session')
+      expect(mockSession.unset).toHaveBeenCalledWith(SESSION_NAME)
       expect(
         SessionStorageService.sessionStorage.commitSession,
       ).toHaveBeenCalledWith(mockSession)
@@ -87,7 +91,10 @@ describe('Auth Service', () => {
       const authenticateMock = jest.fn()
       Auth.authenticator.authenticate = authenticateMock
 
-      await new Auth().callback(mockRequest)
+      await new Auth().callback({
+        request: mockRequest,
+        authProvider: AUTH_PROVIDER.GOOGLE,
+      })
 
       expect(authenticateMock).toHaveBeenCalledWith('google', mockRequest, {
         failureRedirect: AuthenticatorRoutes.LOGIN,
@@ -101,7 +108,10 @@ describe('Auth Service', () => {
       const authenticateMock = jest.fn()
       Auth.authenticator.authenticate = authenticateMock
 
-      await new Auth().authenticate(mockRequest)
+      await new Auth().authenticate({
+        request: mockRequest,
+        authProvider: AUTH_PROVIDER.GOOGLE,
+      })
 
       expect(authenticateMock).toHaveBeenCalledWith('google', mockRequest)
     })

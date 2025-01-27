@@ -91,6 +91,7 @@ const RunsDao = {
     squadIds,
     filterType,
     sectionIds,
+    platformIds,
   }: ICreateRuns) => {
     try {
       const resp = await dbClient.transaction(async (trx) => {
@@ -103,19 +104,22 @@ const RunsDao = {
         })
 
         const runId = addRunsResp[0].insertId
-        const requiredWhereClauses: any[] = [
+        const andWhereCluase: any[] = [
           eq(tests.projectId, projectId),
           eq(tests.status, 'Active'),
         ]
 
         let whereClauses: any[] = []
-        if (labelIds && labelIds.length > 0)
+        if (labelIds?.length)
           whereClauses.push(inArray(labelTestMap.labelId, labelIds))
 
-        if (sectionIds && sectionIds.length > 0)
-          requiredWhereClauses.push(inArray(tests.sectionId, sectionIds))
+        if (platformIds?.length)
+          whereClauses.push(inArray(tests.platformId, platformIds))
 
-        if (squadIds && squadIds.length > 0)
+        if (sectionIds?.length)
+          andWhereCluase.push(inArray(tests.sectionId, sectionIds))
+
+        if (squadIds?.length)
           whereClauses.push(inArray(tests.squadId, squadIds))
 
         const conditionType = filterType === 'or' ? or : and
@@ -124,12 +128,10 @@ const RunsDao = {
           .select({testId: tests.testId})
           .from(tests)
           .leftJoin(labelTestMap, eq(tests.testId, labelTestMap.testId))
-          .where(
-            and(and(...requiredWhereClauses), conditionType(...whereClauses)),
-          )
+          .where(and(and(...andWhereCluase), conditionType(...whereClauses)))
           .groupBy(tests.testId)
 
-        const testIdsSet = new Set(testIds.map((x) => x.testId))
+        const testIdsSet = new Set(testIds.map((test) => test.testId))
         const testRunsData: ICreateTestRuns[] = []
 
         for (let testData of testIdsSet) {

@@ -9,9 +9,9 @@ import {Separator} from '@ui/separator'
 import {FilterIconShuffle} from '../RunTestList/FilterIcon'
 import {cn} from '@ui/utils'
 
-interface ITestListFilters {
-  filter: any
-  setFilter: any
+interface ITestsFilters {
+  filter: TestListFilter[]
+  setFilter: React.Dispatch<React.SetStateAction<TestListFilter[]>>
   onFilterApply: (
     selectedFilters: TestListFilter[],
     filterType?: string,
@@ -20,13 +20,13 @@ interface ITestListFilters {
   containerClassName?: string
 }
 
-export const TestListFilters = ({
+export const TestsFilters = ({
   filter,
   setFilter,
   onFilterApply,
   filterType,
   containerClassName,
-}: ITestListFilters) => {
+}: ITestsFilters) => {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const resetFilter = () => {

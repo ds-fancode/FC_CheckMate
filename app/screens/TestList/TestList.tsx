@@ -5,7 +5,7 @@ import {
   TestListFilter,
 } from '@components/MultipleUnifiedFilter/MultipleUnifiedFilter'
 import {SearchBar} from '@components/SearchBar/SearchBar'
-import {Lables} from '@components/TestsFilter/SelectLabelsAndSquads'
+import {Lables, Platforms} from '~/screens/CreateRun/RunFilter'
 import {ToggleColumns} from '@components/ToggleColums'
 import {
   useFetcher,
@@ -30,7 +30,7 @@ import {Squad} from '../RunTestList/interfaces'
 import {AddProperty, PropertyListFilter} from './AddPropertyDialog'
 import {DeleteTests} from './DeleteTests'
 import {TestListColumnConfig} from './TestColumnConfig'
-import {TestListFilters} from './TestListFilters'
+import {TestsFilters} from './TestListFilters'
 import {
   AutomationStatusData,
   EditableProperties,
@@ -60,6 +60,7 @@ export default function TestList() {
   const squadsFetcher = useFetcher<{data: Squad[]}>()
   const labelsFetcher = useFetcher<{data: Lables[]}>()
   const priorityFetcher = useFetcher<{data: PriorityData[]}>()
+  const platformFetcher = useFetcher<{data: Platforms[]}>()
   const automationStatusFetcher = useFetcher<{data: AutomationStatusData[]}>()
 
   const [editableProperty, setEditableProperty] = useState<
@@ -106,7 +107,37 @@ export default function TestList() {
   useEffect(() => {
     priorityFetcher.load(`/${API.GetPriority}?orgId=${orgId}`)
     automationStatusFetcher.load(`/${API.GetAutomationStatus}?orgId=${orgId}`)
+    platformFetcher.load(`/${API.GetPlatforms}?orgId=${orgId}`)
   }, [orgId])
+
+  useEffect(() => {
+    const platforms = platformFetcher.data?.data
+    if (platforms) {
+      const isPlatformFilterPresent = filter.some(
+        (filter) => filter.filterName === FilterNames.Platform,
+      )
+      if (!isPlatformFilterPresent)
+        setFilter((prev) => {
+          return [
+            ...prev,
+            {
+              filterName: FilterNames.Platform,
+              filterOptions: platforms.map((platform) => {
+                return {
+                  id: platform.platformId,
+                  optionName: platform.platformName,
+                  checked: isChecked({
+                    searchParams,
+                    filterName: 'platformIds',
+                    filterId: platform.platformId,
+                  }),
+                }
+              }),
+            },
+          ]
+        })
+    }
+  }, [platformFetcher.data])
 
   useEffect(() => {
     const squads = squadsFetcher.data?.data
@@ -257,84 +288,9 @@ export default function TestList() {
     }
   }, [automationStatusFetcher.data?.data])
 
-  useEffect(() => {
-    table.setRowSelection((_) => {
-      return {}
-    })
-
-    if (searchParams.has('squadIds')) {
-      const squadIds = safeJsonParse(searchParams.get('squadIds') as string)
-      if (squadIds && squadIds?.length > 0) {
-        for (let index in filter) {
-          if (filter[index].filterName === FilterNames.Squad) {
-            filter[index].filterOptions.forEach((option) => {
-              if (squadIds.includes(option.id)) {
-                option.checked = true
-              }
-            })
-            break
-          }
-        }
-      }
-    }
-
-    if (searchParams.has('labelIds')) {
-      const labelIds = safeJsonParse(searchParams.get('labelIds') as string)
-      if (labelIds && labelIds?.length > 0) {
-        for (let index in filter) {
-          if (filter[index].filterName === FilterNames.Label) {
-            filter[index].filterOptions.forEach((option) => {
-              if (labelIds.includes(option.id)) {
-                option.checked = true
-              }
-            })
-            break
-          }
-        }
-      }
-    }
-
-    if (searchParams.has('statusArray')) {
-      const statusArray = safeJsonParse(
-        searchParams.get('statusArray') as string,
-      )
-      if (statusArray && statusArray?.length > 0) {
-        for (let index in filter) {
-          if (filter[index].filterName === FilterNames.Status) {
-            filter[index].filterOptions.forEach((option) => {
-              if (statusArray.includes(option.id)) {
-                option.checked = true
-              }
-            })
-            break
-          }
-        }
-      }
-    }
-
-    if (searchParams.has('platformIds')) {
-      const platformIds = safeJsonParse(
-        searchParams.get('platformIds') as string,
-      )
-      if (platformIds && platformIds?.length > 0) {
-        for (let index in filter) {
-          if (filter[index].filterName === FilterNames.Platform) {
-            filter[index].filterOptions.forEach((option) => {
-              if (platformIds.includes(option.id)) {
-                option.checked = true
-              }
-            })
-            break
-          }
-        }
-      }
-    }
-  }, [searchParams])
-
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     'Created By': false,
     'Test Covered By': false,
-    // 'Test ID': false,
     Section: false,
   })
 
@@ -471,6 +427,30 @@ export default function TestList() {
             {replace: true},
           )
         }
+      } else if (filter.filterName === FilterNames.Platform) {
+        const selectedPlatforms = filter.filterOptions
+          .filter((option) => option.checked)
+          .map((option) => option.id)
+
+        if (selectedPlatforms?.length === 0) {
+          setSearchParams(
+            (prev) => {
+              prev.delete('platformIds')
+              prev.set('page', (1).toString())
+              return prev
+            },
+            {replace: true},
+          )
+        } else {
+          setSearchParams(
+            (prev) => {
+              prev.set('platformIds', JSON.stringify(selectedPlatforms))
+              prev.set('page', (1).toString())
+              return prev
+            },
+            {replace: true},
+          )
+        }
       }
     })
   }
@@ -499,7 +479,7 @@ export default function TestList() {
           propertiesArray={editableProperty}
         />
 
-        <TestListFilters
+        <TestsFilters
           filter={filter}
           setFilter={setFilter}
           onFilterApply={onFilterApply}

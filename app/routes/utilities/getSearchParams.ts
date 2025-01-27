@@ -5,7 +5,7 @@ import {
 } from '@controllers/tests.controller'
 import {ITestRunData} from '@dao/testRuns.dao'
 import {ErrorCause} from '~/constants'
-import {SMALL_PAGE_SIZE} from './constants'
+import {MED_PAGE_SIZE} from './constants'
 import {
   checkForProjectId,
   checkForRunId,
@@ -32,6 +32,9 @@ const SearchParams = {
       : undefined
     const labelIds = searchParams.labelIds
       ? jsonParseWithError(searchParams.labelIds, 'labelIds')
+      : undefined
+    const platformIds = searchParams.platformIds
+      ? jsonParseWithError(searchParams.platformIds, 'platformIds')
       : undefined
     const page = Number(url.searchParams.get('page')) || 1
     const pageSize = Number(url.searchParams.get('pageSize')) || 250
@@ -69,6 +72,7 @@ const SearchParams = {
       sectionIds: sectionIds?.length ? sectionIds : undefined,
       sortBy,
       sortOrder: sortOrder as ITestRunData['sortOrder'],
+      platformIds,
     }
   },
 
@@ -77,7 +81,7 @@ const SearchParams = {
 
     const searchParams = Object.fromEntries(url.searchParams.entries())
 
-    const projectId = params.projectId ?? Number(searchParams['projectId'])
+    const projectId = params?.projectId ?? Number(searchParams['projectId'])
 
     const squadIds = searchParams.squadIds
       ? jsonParseWithError(searchParams.squadIds, 'squadIds')
@@ -85,7 +89,9 @@ const SearchParams = {
     const labelIds = searchParams.labelIds
       ? jsonParseWithError(searchParams.labelIds, 'labelIds')
       : undefined
-
+    const platformIds = searchParams.platformIds
+      ? jsonParseWithError(searchParams.platformIds, 'platformIds')
+      : undefined
     const filterType = searchParams.filterType
       ? (searchParams.filterType as ITestsController['filterType'])
       : 'and'
@@ -95,7 +101,14 @@ const SearchParams = {
 
     if (!checkForProjectId(projectId))
       throw new Error('Invalid projectId', {cause: ErrorCause.INVALID_PARAMS})
-    return {projectId, squadIds, labelIds, filterType, includeTestIds}
+    return {
+      projectId,
+      platformIds,
+      squadIds,
+      labelIds,
+      filterType,
+      includeTestIds,
+    }
   },
   getRunTests: ({params, request}: ISearchParams): ITestRunData => {
     const url = new URL(request.url)
@@ -112,6 +125,9 @@ const SearchParams = {
       : undefined
     const labelIds = searchParams.labelIds
       ? jsonParseWithError(searchParams.labelIds, 'labelIds')
+      : undefined
+    const platformIds = searchParams.platformIds
+      ? jsonParseWithError(searchParams.platformIds, 'platformIds')
       : undefined
     const page = Number(url.searchParams.get('page')) || 1
     const pageSize = Number(url.searchParams.get('pageSize')) || 100
@@ -151,6 +167,7 @@ const SearchParams = {
       })
 
     return {
+      platformIds,
       runId,
       projectId,
       statusArray,
@@ -195,7 +212,7 @@ const SearchParams = {
   getAllUsers: ({params, request}: ISearchParams) => {
     const url = new URL(request.url)
     const page = Number(url.searchParams.get('page')) || 1
-    const pageSize = Number(url.searchParams.get('pageSize')) || SMALL_PAGE_SIZE
+    const pageSize = Number(url.searchParams.get('pageSize')) || MED_PAGE_SIZE
     const textSearch = url.searchParams.get('textSearch') || ''
     const userRoles = url.searchParams.get('userRoles')
       ? jsonParseWithError(url.searchParams.get('userRoles'), 'userRoles')
