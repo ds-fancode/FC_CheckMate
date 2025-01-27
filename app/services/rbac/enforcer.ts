@@ -8,7 +8,7 @@ class EnforcerManager {
     if (!this.enforcer || reload) {
       const adapter = new DrizzleAdapter()
       this.enforcer = await newEnforcer(
-        process.cwd() + '/app/services/rbac/model.conf',
+        process.cwd() + '/rbac_model.conf',
         adapter,
       )
       await this.enforcer.loadPolicy()
