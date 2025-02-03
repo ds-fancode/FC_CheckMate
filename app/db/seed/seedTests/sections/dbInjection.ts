@@ -1,51 +1,74 @@
-import {sections} from '~/db/schema/tests'
+import SectionsController from '@controllers/sections.controller'
 import sectionsData from 'app/db/seed/seedTests/tests_section.json'
-import {client, dbClient} from '~/db/client'
-import {and, eq} from 'drizzle-orm'
 import {CREATED_BY, PROJECT_ID} from '../contants'
 
-for (let item of sectionsData) {
-  const sectionArray = item['Section Hierarchy']
-    .split('>')
-    .map((item) => item?.trim())
-  let sectionHierarchy = ''
+console.log('🧨 Inserting Sections Data...')
 
-  for (let index in sectionArray) {
-    let sectionName = sectionArray[index]
-    if (+index === 0) sectionHierarchy = sectionName
-    else sectionHierarchy = sectionHierarchy + ' > ' + sectionName
-
-    try {
-      const sectionResp = await dbClient
-        .select({id: sections.sectionId})
-        .from(sections)
-        .where(
-          and(
-            eq(sections.sectionName, sectionName),
-            eq(sections.projectId, PROJECT_ID),
-            eq(sections.sectionHierarchy, sectionHierarchy),
-          ),
-        )
-
-      if (sectionResp.length > 0) {
-        // console.log('Section already exists in the database. Skipping...')
-        continue
+async function insertSectionsData() {
+  const results: PromiseSettledResult<
+    | {
+        sectionId: number
+        sectionName: string
+        projectId: number
+        sectionHierarchy: string | null
       }
+    | undefined
+  >[] = []
 
-      await dbClient.insert(sections).values({
-        projectId: PROJECT_ID,
-        sectionName: sectionName,
-        sectionHierarchy: sectionHierarchy,
-        sectionDescription: item['Section Description'],
-        sectionDepth: +index,
-        createdBy: CREATED_BY,
+  for (let item of sectionsData) {
+    try {
+      const sectionInserted =
+        await SectionsController.createSectionFromHierarchyString({
+          sectionHierarchyString: item['Section Hierarchy'],
+          projectId: PROJECT_ID,
+          createdBy: CREATED_BY,
+        })
+
+      results.push({
+        status: 'fulfilled',
+        value: sectionInserted,
       })
-      // console.log(`Inserted data for ${sectionName}`)
-    } catch (e) {
-      console.log(`⛔️ Error in inserting data for ${sectionName}`, e)
+    } catch (error) {
+      console.log(
+        `❌ Error in inserting section ${item['Section Hierarchy']}`,
+        error,
+      )
+      results.push({
+        status: 'rejected',
+        reason: error,
+      })
     }
   }
+
+  const success = results
+    .filter((result) => result?.status === 'fulfilled')
+    .map((result) => result?.value)
+
+  const failed = results
+    .filter((result) => result?.status === 'rejected')
+    .map((result) => ({
+      error: result?.reason,
+      sectionHierarchy:
+        sectionsData[results.indexOf(result)]['Section Hierarchy'],
+    }))
+
+  if (success.length > 0) {
+    console.log(
+      `✅ Successfully inserted ${success.length} sections`,
+      // success.map((s) => {
+      //   return {
+      //     sectionHierarchy: s?.sectionHierarchy,
+      //     sectionId: s?.sectionId,
+      //   }
+      // }),
+    )
+  }
+  if (failed.length > 0)
+    console.log(
+      `❌ Failed to insert ${failed.length} sections:`,
+      failed.map((f) => f.error),
+    )
+  process.exit(0)
 }
 
-console.log('🚀 SECTIONS DATA INSERTED SUCCESSFULLY')
-client.end()
+insertSectionsData()

@@ -23,10 +23,13 @@ export const SectionList = () => {
   const sectionFetcher = useFetcher<{
     data: Sections[]
   }>()
-  const projectId = Number(useParams().projectId)
+  const projectId = useParams().projectId ? Number(useParams().projectId) : 0
+  const runId = useParams().runId ? Number(useParams().runId) : 0
 
   useEffect(() => {
-    sectionFetcher.load(`/${API.GetSections}?projectId=${projectId}`)
+    sectionFetcher.load(
+      `/${API.GetSections}?projectId=${projectId}&runId=${runId}`,
+    )
   }, [])
 
   useEffect(() => {
@@ -125,9 +128,9 @@ export const SectionList = () => {
   }
 
   return (
-    <div className="flex flex-col flex-grow ml-4 h-full overflow-y-scroll bg-slate-200 p-4 pb-12">
+    <div className="flex flex-col flex-grow ml-4 h-full overflow-y-scroll bg-slate-200 p-4 pb-12 flex-nowrap">
       <div>
-        <h2 className="font-semibold flex flex-row mb-2">
+        <h2 className="font-semibold flex flex-row mb-2 text-nowrap">
           Section List
           <SectionInfoBox />
           {selectedSections?.length > 0 ? (
@@ -153,14 +156,16 @@ export const SectionList = () => {
           selectedSections={selectedSections}
           toggleSection={toggleSection}
         />
-        <button
-          onClick={() => {
-            addSubsectionClicked(null)
-          }}
-          className="flex text-sm flex-row items-center gap-2 truncate ml-2 mt-2">
-          <CirclePlus color="green" size={16} />
-          <span>{`Add Section`}</span>
-        </button>
+        {!runId && (
+          <button
+            onClick={() => {
+              addSubsectionClicked(null)
+            }}
+            className="flex text-sm flex-row items-center gap-2 truncate ml-2 mt-2">
+            <CirclePlus color="green" size={16} />
+            <span>{`Add Section`}</span>
+          </button>
+        )}
       </div>
       <AddSectionDialogue
         sectionHierarchy={sectionHierarchy}
