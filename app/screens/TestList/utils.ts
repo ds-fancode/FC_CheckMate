@@ -1,4 +1,4 @@
-import {AllowedColumns} from '../constants'
+import {AllowedColumns} from './UploadTest/constants'
 import {PropertyListFilter} from './AddPropertyDialog'
 import {EditableProperties} from './testTable.interface'
 
@@ -71,36 +71,30 @@ export const AddConstantEditableProperty: PropertyListFilter[] = [
   },
 ]
 
-export function transformObject(originalObject: {[key: string]: any}): {
+function extractNumber(input: any): number | null {
+  const strValue = String(input)
+  const match = strValue.match(/(\d+)$/)
+  if (match) {
+    const num = Number(match[1])
+    return isNaN(num) ? null : num
+  }
+  return null
+}
+
+export function convertKeys(input: {[key: string]: any}): {
   [key: string]: any
 } {
-  const compositeFieldValues: {[key: string]: any} = {}
+  const convertedObject: Record<string, any> = {}
 
-  for (const [originalKey, value] of Object.entries(originalObject)) {
-    if (!!value) {
-      let baseKey = Object.keys(AllowedColumns).find((key) => {
-        return originalKey === key
-      })
-
-      if (originalKey.toLowerCase().includes('step')) baseKey = 'Steps'
-
-      if (baseKey) {
-        const mappedKey = AllowedColumns[baseKey as keyof typeof AllowedColumns]
-        if (mappedKey) {
-          if (mappedKey === 'testId') {
-            compositeFieldValues[mappedKey] = value
-              ?.toString()
-              ?.match(/(\d+)/)?.[0]
-          } else if (compositeFieldValues[mappedKey]) {
-            compositeFieldValues[mappedKey] += ` \n${value}`
-          } else {
-            compositeFieldValues[mappedKey] = String(value)
-          }
-        }
-      }
+  Object.keys(input).forEach((key) => {
+    const newKey = AllowedColumns[key as keyof typeof AllowedColumns] || key
+    if (input[key] !== null && input[key] !== undefined) {
+      if (newKey === 'testId') {
+        convertedObject[newKey] = extractNumber(input[key])
+      } else convertedObject[newKey] = input[key]
     }
-  }
-  return compositeFieldValues
+  })
+  return convertedObject
 }
 
 export function createTestAddedMessage(data: any) {
@@ -129,10 +123,10 @@ export function throttle<T extends (...args: any[]) => any>(
 
   return function (...args: Parameters<T>) {
     if (!isThrottled) {
-      func(...args) // Execute the function immediately
-      isThrottled = true // Block subsequent calls
+      func(...args)
+      isThrottled = true
       setTimeout(() => {
-        isThrottled = false // Allow calls after delay
+        isThrottled = false
       }, delay)
     }
   }

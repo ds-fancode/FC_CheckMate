@@ -1,10 +1,8 @@
 import {RunDetails} from '@api/runData'
 import {TestRunSummary} from '@api/runMetaInfo'
+import {RunTestListResponseType} from '@api/runTestsList'
 import {Loader} from '@components/Loader/Loader'
-import {
-  MultipleUnifiedFilterProps,
-  TestListFilter,
-} from '@components/MultipleUnifiedFilter/MultipleUnifiedFilter'
+import {TestListFilter} from '@components/MultipleUnifiedFilter/MultipleUnifiedFilter'
 import {StatusFilterOptions} from '@components/MultipleUnifiedFilter/staticFiltersData'
 import {ToggleColumns} from '@components/ToggleColums'
 import {
@@ -25,10 +23,9 @@ import {
 import {useEffect, useState} from 'react'
 import {DataTable} from '~/components/DataTable/DataTable'
 import {SearchBar} from '~/components/SearchBar/SearchBar'
-import {RunTestListResponseType} from '~/routes/project.$projectId.run.$runId._index'
 import {API} from '~/routes/utilities/api'
 import {MED_PAGE_SIZE, ORG_ID} from '~/routes/utilities/constants'
-import {Lables, Platforms} from '~/screens/CreateRun/RunFilter'
+import {Lables, Platforms} from '~/screens/CreateRun/CreateRunFilter'
 import {AddResultDialog} from '~/screens/RunTestList/AddResultDialog'
 import {Squad} from '~/screens/RunTestList/interfaces'
 import {RunMetaData} from '~/screens/RunTestList/RunMetaData'
@@ -109,9 +106,9 @@ export default function RunTestList() {
     }
   }, [])
 
-  const testRunsData = resp.data?.testsList || []
+  const testRunsData = resp?.data?.testsList || []
 
-  const totalCount = resp.data.totalCount
+  const totalCount = resp?.data?.totalCount ?? 0
 
   useEffect(() => {
     if (runDetailsFetcher?.data?.data) setRunData(runDetailsFetcher?.data?.data)
@@ -169,14 +166,6 @@ export default function RunTestList() {
     table.setPageIndex(0)
   }
 
-  let filterType: MultipleUnifiedFilterProps['filterType']
-  if (searchParams.has('filterType')) {
-    filterType =
-      (searchParams.get(
-        'filterType',
-      ) as MultipleUnifiedFilterProps['filterType']) ?? 'and'
-  }
-
   useEffect(() => {
     const squads = squadsFetcher.data?.data
     if (squads) {
@@ -189,17 +178,28 @@ export default function RunTestList() {
             ...prev,
             {
               filterName: FilterNames.Squad,
-              filterOptions: squads.map((squad) => {
-                return {
-                  id: squad.squadId,
-                  optionName: squad.squadName,
+              filterOptions: [
+                ...squads.map((squad) => {
+                  return {
+                    id: squad.squadId,
+                    optionName: squad.squadName,
+                    checked: isChecked({
+                      searchParams,
+                      filterName: 'squadIds',
+                      filterId: squad.squadId,
+                    }),
+                  }
+                }),
+                {
+                  id: 0,
+                  optionName: 'None',
                   checked: isChecked({
                     searchParams,
                     filterName: 'squadIds',
-                    filterId: squad.squadId,
+                    filterId: 0,
                   }),
-                }
-              }),
+                },
+              ],
             },
           ]
         })
@@ -459,7 +459,7 @@ export default function RunTestList() {
           )
         )}
       </div>
-      <div className={cn('flex flex-col gap-4 h-[calc(100%-172px)]')}>
+      <div className={cn('flex flex-col gap-4 h-[calc(100%-160px)]')}>
         <div className={'flex gap-2 h-12'}>
           <SearchBar
             handlechange={handleChange}
@@ -480,7 +480,6 @@ export default function RunTestList() {
             filter={filter}
             setFilter={setFilter}
             onFilterApply={onFilterApply}
-            filterType={filterType}
           />
 
           <ToggleColumns table={table} />

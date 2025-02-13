@@ -1,6 +1,6 @@
 import {ColumnDef} from '@tanstack/react-table'
 import {Tooltip} from '@components/Tooltip/Tooltip'
-import {TestListingColumns} from '~/screens/constants'
+import {TestListingColumns} from '~/screens/TestList/UploadTest/constants'
 import {HeaderComponent, TitleRowComponent} from '../TestListRowColumns'
 
 export const UploadTestTableColumn: ColumnDef<any>[] = [
@@ -10,7 +10,7 @@ export const UploadTestTableColumn: ColumnDef<any>[] = [
       <HeaderComponent heading={TestListingColumns.testId} position={'left'} />
     ),
     cell: ({row}) => {
-      return <div className="flex flex-grow text-left">{row.original?.ID}</div>
+      return <div className="flex flex-grow text-left">{row.original?.Id}</div>
     },
   },
   {
@@ -47,27 +47,6 @@ export const UploadTestTableColumn: ColumnDef<any>[] = [
             </div>
           }
           content={row.original.Section}
-        />
-      )
-    },
-  },
-  {
-    accessorKey: TestListingColumns.sectionHierarchy,
-    header: () => (
-      <HeaderComponent
-        heading={TestListingColumns.sectionHierarchy}
-        position={'left'}
-      />
-    ),
-    cell: ({row}) => {
-      return (
-        <Tooltip
-          anchor={
-            <div className="text-left text-xs max-w-28 truncate">
-              {row.original['Section Hierarchy']}
-            </div>
-          }
-          content={row.original['Section Hierarchy']}
         />
       )
     },

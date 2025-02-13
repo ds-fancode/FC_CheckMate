@@ -1,3 +1,4 @@
+import {Tests} from '@api/runTestsList'
 import {Tooltip} from '@components/Tooltip/Tooltip'
 import {TestStatusType} from '@controllers/types'
 import {
@@ -9,7 +10,6 @@ import {
 import {useParams} from '@remix-run/react'
 import {ColumnDef} from '@tanstack/react-table'
 import {ReactNode, useState} from 'react'
-import {Tests} from '~/screens/RunTestList/interfaces'
 import {Checkbox} from '~/ui/checkbox'
 import {cn} from '~/ui/utils'
 import {TestDetailDrawer} from '../TestList/TestDetailSlidingPanel'
@@ -20,7 +20,7 @@ import {
   SortingHeaderComponent,
   TitleRowComponent,
 } from '../TestList/TestListRowColumns'
-import {TestListingColumns} from '../constants'
+import {TestListingColumns} from '../TestList/UploadTest/constants'
 import {AddResultDialog} from './AddResultDialog'
 
 export const priorityMapping: {[key: string]: ReactNode} = {
@@ -237,14 +237,9 @@ export const RunTestListColumnConfig: ColumnDef<Tests>[] = [
       />
     ),
     cell: ({row}) => (
-      <Tooltip
-        anchor={
-          <div className="text-left max-w-32 truncate">
-            {row.original.sectionName}
-          </div>
-        }
-        content={row.original.sectionHierarchy}
-      />
+      <div className="text-left max-w-32 truncate">
+        {row.original.sectionName}
+      </div>
     ),
   },
   {

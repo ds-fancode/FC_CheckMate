@@ -3,7 +3,7 @@ import {
   DropdownMenuCheckboxes,
   IDropdownMenuCheckboxes,
 } from '@components/TestsFilter/DropdownMenuCheckboxes'
-import {Lables} from '~/screens/CreateRun/RunFilter'
+import {Lables} from '~/screens/CreateRun/CreateRunFilter'
 import {setUpdatedFilterList} from '@components/TestsFilter/utils'
 import {useFetcher, useParams} from '@remix-run/react'
 import {Button} from '@ui/button'
@@ -13,12 +13,12 @@ import {useToast} from '@ui/use-toast'
 import Papa from 'papaparse'
 import {ChangeEvent, useEffect, useState} from 'react'
 import {LARGE_PAGE_SIZE as PAGE_SIZE} from '~/routes/utilities/constants'
-import {ConstantStrings, MandatoryColumns} from '../../constants'
+import {ConstantStrings, MandatoryColumns} from './constants'
 
 import {useCustomNavigate} from '@hooks/useCustomNavigate'
 import {ORG_ID} from '~/routes/utilities/constants'
-import {transformObject} from '../utils'
-import {ImportTestInfoBox} from './UploadTestsInfoBox'
+import {convertKeys} from '../utils'
+import {UploadTestsInfoBox} from './UploadTestsInfoBox'
 import {UploadDataTable} from './UploadDataTable'
 import {API} from '@route/utils/api'
 
@@ -118,14 +118,14 @@ export default function UploadTests() {
       .map((label) => label.id)
 
     const tests = data.map((tests) => {
-      return transformObject(tests)
+      return convertKeys(tests)
     })
 
     const ids = tests.filter((item) => item?.testId)
     if (ids.length != 0 && ids.length != tests.length) {
       toast({
         variant: 'destructive',
-        description: `Some rows contain IDs and some does not`,
+        description: `Some rows contain Id and some does not`,
       })
       return
     }
@@ -173,7 +173,7 @@ export default function UploadTests() {
             accept=".csv"
             onChange={changeHandler}
           />
-          <ImportTestInfoBox />
+          <UploadTestsInfoBox />
         </div>
         <span className="text-xs mt-1 ml-2 text-slate-500">
           {`*${ConstantStrings.CsvValidColumnsMessage}`}

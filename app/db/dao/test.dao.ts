@@ -72,9 +72,16 @@ const TestsDao = {
           })
 
       if (squadIds)
-        if (squadIds.length > 0)
-          whereClauses.push(inArray(tests.squadId, squadIds))
-        else
+        if (squadIds.length > 0) {
+          if (squadIds.includes(0)) {
+            whereClauses.push(
+              or(
+                inArray(tests.squadId, squadIds),
+                sql`${tests.squadId} IS NULL`,
+              ),
+            )
+          } else whereClauses.push(inArray(tests.squadId, squadIds))
+        } else
           throw new Error('Empty squadIds provided', {
             cause: ErrorCause.INVALID_PARAMS,
           })
@@ -114,7 +121,8 @@ const TestsDao = {
           refCreatedByName: users.userName,
           projectId: tests.projectId,
           section: sections.sectionName,
-          sectionHierarchy: sections.sectionHierarchy,
+          sectionId: sections.sectionId,
+          sectionParentId: sections.parentId,
         })
         .from(tests)
         .leftJoin(labelTestMap, eq(tests.testId, labelTestMap.testId))
@@ -190,9 +198,16 @@ const TestsDao = {
           })
 
       if (squadIds)
-        if (squadIds.length > 0)
-          whereClauses.push(inArray(tests.squadId, squadIds))
-        else
+        if (squadIds.length > 0) {
+          if (squadIds.includes(0)) {
+            whereClauses.push(
+              or(
+                inArray(tests.squadId, squadIds),
+                sql`${tests.squadId} IS NULL`,
+              ),
+            )
+          } else whereClauses.push(inArray(tests.squadId, squadIds))
+        } else
           throw new Error('Empty squadIds provided', {
             cause: ErrorCause.INVALID_PARAMS,
           })
@@ -457,7 +472,8 @@ const TestsDao = {
           preConditions: tests.preConditions,
           steps: tests.steps,
           expectedResult: tests.expectedResult,
-          sectionHierarchy: sections.sectionHierarchy,
+          sectionId: sections.sectionId,
+          sectionParentId: sections.parentId,
           automationId: tests.automationId,
           additionalGroups: tests.additionalGroups,
           labelNames:
@@ -601,7 +617,8 @@ const TestsDao = {
           refCreatedByName: users.userName,
           projectId: tests.projectId,
           section: sections.sectionName,
-          sectionHierarchy: sections.sectionHierarchy,
+          sectionId: sections.sectionId,
+          sectionParentId: sections.parentId,
         })
         .from(tests)
         .leftJoin(labelTestMap, eq(tests.testId, labelTestMap.testId))

@@ -91,7 +91,20 @@ const TestRunsDao = {
 
       if (projectId) andWhereCluase.push(eq(testRunMap.projectId, projectId))
 
-      if (squadIds?.length) whereClauses.push(inArray(tests.squadId, squadIds))
+      if (squadIds)
+        if (squadIds.length > 0) {
+          if (squadIds.includes(0)) {
+            whereClauses.push(
+              or(
+                inArray(tests.squadId, squadIds),
+                sql`${tests.squadId} IS NULL`,
+              ),
+            )
+          } else whereClauses.push(inArray(tests.squadId, squadIds))
+        } else
+          throw new Error('Empty squadIds provided', {
+            cause: ErrorCause.INVALID_PARAMS,
+          })
 
       if (labelIds)
         if (labelIds.length > 0)
@@ -144,7 +157,7 @@ const TestRunsDao = {
           squadName: squads.squadName,
           sectionId: sections.sectionId,
           sectionName: sections.sectionName,
-          sectionHierarchy: sections.sectionHierarchy,
+          sectionParentId: sections.parentId,
           runStatus: runs.status,
           testCoveredBy: testCoveredBy.testCoveredByName,
           testedBy: sql`MAX(${users.userName})`.as('testedBy'),
@@ -348,8 +361,10 @@ const TestRunsDao = {
       if (params.groupBy) {
         const groupByCountQuery = dbClient
           .select({
-            squadName: squads.squadName,
-            squadId: squads.squadId,
+            squadName: sql<string>`COALESCE(${squads.squadName}, 'None')`.as(
+              'squadName',
+            ),
+            squadId: sql<number>`COALESCE(${squads.squadId}, 0)`.as('squadId'),
             status: testRunMap.status,
             status_count: count(),
           })
@@ -357,7 +372,7 @@ const TestRunsDao = {
           .leftJoin(tests, eq(testRunMap.testId, tests.testId))
           .leftJoin(squads, eq(tests.squadId, squads.squadId))
           .where(and(...whereClauses))
-          .groupBy(squads.squadId, testRunMap.status)
+          .groupBy(squads.squadId, squads.squadName, testRunMap.status)
 
         const [statuCountArray, groupByData] = await Promise.all([
           statuCountArrayQuery.execute(),

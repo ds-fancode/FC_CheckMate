@@ -17,13 +17,6 @@ export interface Lables {
   labelType: string
 }
 
-export interface Sections {
-  sectionName: string
-  sectionId: number
-  sectionHierarchy: string
-  sectionDepth: number
-}
-
 export interface Priority {
   priorityName: string
   priorityId: number
@@ -81,17 +74,28 @@ export const RunFilter = () => {
             ...prev,
             {
               filterName: FilterNames.Squad,
-              filterOptions: squads.map((squad) => {
-                return {
-                  id: squad.squadId,
-                  optionName: squad.squadName,
+              filterOptions: [
+                ...squads.map((squad) => {
+                  return {
+                    id: squad.squadId,
+                    optionName: squad.squadName,
+                    checked: isChecked({
+                      searchParams,
+                      filterName: 'squadIds',
+                      filterId: squad.squadId,
+                    }),
+                  }
+                }),
+                {
+                  id: 0,
+                  optionName: 'No Squad',
                   checked: isChecked({
                     searchParams,
                     filterName: 'squadIds',
-                    filterId: squad.squadId,
+                    filterId: 0,
                   }),
-                }
-              }),
+                },
+              ],
             },
           ]
         })
