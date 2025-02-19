@@ -1,23 +1,13 @@
-import {ChevronRightIcon} from '@radix-ui/react-icons'
-import {ColumnDef} from '@tanstack/react-table'
-import {getDateDetail} from '~/utils/getDate'
-import {ITestListTable} from './testTable.interface'
 import {TrashIcon} from '@components/Button/TrashIcon'
+import {CustomDialog} from '@components/Dialog/Dialog'
 import {Tooltip} from '@components/Tooltip/Tooltip'
 import {useCustomNavigate} from '@hooks/useCustomNavigate'
+import {ChevronRightIcon} from '@radix-ui/react-icons'
 import {useFetcher} from '@remix-run/react'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@ui/alert-dialog'
+import {ColumnDef} from '@tanstack/react-table'
+import {Button} from '@ui/button'
 import {Checkbox} from '@ui/checkbox'
+import {DialogClose} from '@ui/dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,8 +17,9 @@ import {
 import {toast} from '@ui/use-toast'
 import {PencilIcon} from 'lucide-react'
 import {MouseEvent, useEffect, useState} from 'react'
+import {API} from '~/routes/utilities/api'
 import {cn} from '~/ui/utils'
-import {TestListingColumns} from './UploadTest/constants'
+import {getDateDetail} from '~/utils/getDate'
 import {TestDetailDrawer} from './TestDetailSlidingPanel'
 import {
   HeaderComponent,
@@ -37,7 +28,8 @@ import {
   SortingHeaderComponent,
   TitleRowComponent,
 } from './TestListRowColumns'
-import {API} from '~/routes/utilities/api'
+import {ITestListTable} from './testTable.interface'
+import {TestListingColumns} from './UploadTest/constants'
 
 export const TestListColumnConfig: ColumnDef<ITestListTable>[] = [
   {
@@ -311,33 +303,40 @@ export const TestListColumnConfig: ColumnDef<ITestListTable>[] = [
                 <PencilIcon className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
+              <CustomDialog
+                variant="delete"
+                anchorComponent={
                   <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                     <TrashIcon size={20} className="mr-2 h-4 w-4" />
                     Delete
                   </DropdownMenuItem>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Are you absolutely sure?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      the test.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel onClick={() => setMenuOpen(false)}>
-                      Cancel
-                    </AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDeleteTest}>
-                      Delete
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+                }
+                contentComponent={
+                  <>
+                    <div className="text-lg font-semibold">
+                      Are you sure you want to delete?
+                    </div>
+                    <div className="flex flex-col mt-4 text-xs text-gray-500">
+                      This action cannot be undone, it will permanently delete
+                      this test and its data.
+                    </div>
+                  </>
+                }
+                footerComponent={
+                  <>
+                    <DialogClose>
+                      <Button variant={'outline'}>Cancel</Button>
+                    </DialogClose>
+                    <DialogClose>
+                      <Button
+                        className="bg-destructive/90 hover:bg-destructive font-semibold"
+                        onClick={handleDeleteTest}>
+                        Delete
+                      </Button>
+                    </DialogClose>
+                  </>
+                }
+              />
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
