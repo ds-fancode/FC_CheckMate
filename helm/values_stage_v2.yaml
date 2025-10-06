@@ -33,7 +33,7 @@ global:
   DNS: fancode-stag.local
 
   imageVersion:
-    service: fc-checkmate:latest
+    service: fc-checkmate:3a865e2f4c9a3e46d0f1fbba329e89ee
     servicemysql: fc-checkmate:mysql-v2
 
   service:
