@@ -1,0 +1,23 @@
+name: master_nodeVersionCheck
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+    branches:
+      - master
+
+jobs:
+
+  validateNodeVersion:
+    uses: ds-fancode/fc-github-actions/.github/workflows/validateNodeVersion.yml@latest
+    with:
+      refVersion: latest
+      baseRef: ${{github.base_ref}}
+      headRef: ${{github.head_ref}}
+    secrets:
+      JFROG_FC_BOT_USER: ${{ secrets.JFROG_FC_BOT_USER }}
+      JFROG_FC_BOT_PASSWORD: ${{ secrets.JFROG_FC_BOT_PASSWORD }}
+      FC_GITHUB_ACTIONS_READ_PAT: ${{ secrets.FC_GITHUB_ACTIONS_READ_PAT }}

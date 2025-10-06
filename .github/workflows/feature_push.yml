@@ -1,0 +1,20 @@
+name: feature_push
+
+on:
+  push:
+    branches-ignore:
+      - master
+
+jobs:
+
+  createAndUploadNodeDockerImage:
+    uses: ds-fancode/fc-github-actions/.github/workflows/createAndUploadNodeDockerImage.yml@latest
+    with:
+      refVersion: latest
+      baseRef: ${{github.ref_name}}
+      nodeBaseImage: node-base:20.17.0
+      nodeVersion: 20
+    secrets:
+      JFROG_FC_BOT_USER: ${{ secrets.JFROG_FC_BOT_USER }}
+      JFROG_FC_BOT_PASSWORD: ${{ secrets.JFROG_FC_BOT_PASSWORD }}
+      FC_GITHUB_ACTIONS_READ_PAT: ${{ secrets.FC_GITHUB_ACTIONS_READ_PAT }}

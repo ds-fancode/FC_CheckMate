@@ -1,0 +1,13 @@
+name: Arch Review
+
+on:
+  pull_request_review:
+    types: [ submitted ]
+
+
+jobs:
+  run-arch-review:
+    uses: ds-fancode/fc-github-actions/.github/workflows/arch-review-lib.yml@master
+    with:
+      title: ${{ github.event.pull_request.title }}
+      baseBranch: ${{ github.event.pull_request.base.ref }}

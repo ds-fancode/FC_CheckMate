@@ -1,0 +1,9 @@
+name: PR Size
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  run-pr-size-check:
+    uses: ds-fancode/fc-github-actions/.github/workflows/pr-size-lib.yml@master

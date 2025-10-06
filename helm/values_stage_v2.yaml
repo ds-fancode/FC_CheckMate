@@ -1,0 +1,92 @@
+mysql:
+  ssl: false
+  serviceName: fc-checkmate
+  user: fc-checkmate
+  password: change-me
+  databaseName: checkmate
+  replicaCount: 1
+  containerPort: 3306
+  protocol: TCP
+  storage: 20Gi
+
+global:
+  commonProperties:
+    imageRegistry: 986567487896.dkr.ecr.us-east-1.amazonaws.com/staging
+    revisionHistoryLimit: 2
+    imagePullSecrets: null
+    LogLocation: /var/log/pm2
+    logmountPath: /var/log/pm2
+    TEAM_SUFFIX: k8s-fra-01
+    VPC_SUFFIX: stag
+    sqlMigration: true
+    redisMigration: false
+  podLabel:
+    bu: tech
+    createdby: devops
+    dt: infra
+    deploymentType: node
+    environment: stag
+    service: fc-checkmate
+  db:
+    enabled: false
+  environment: stage
+  DNS: fancode-stag.local
+
+  imageVersion:
+    service: fc-checkmate:latest
+    servicemysql: fc-checkmate:mysql-v2
+
+  service:
+    gatewayClassName: gke-l7-rilb
+    gatewayType: rilb
+    initContainers:
+      enabled: true
+    envs:
+      TEAM_SUFFIX: k8s-fra-01
+      VPC_SUFFIX: stag
+      NODE_ENV: k8s-stage
+      LOG_LOCATION: /var/log/pm2
+      serviceName: fc-checkmate
+      PLATFORM: k8s
+      DB_URL: "mysql://fc-checkmate:{PASSWORD}@checkmate-db.fancode-stag.local:3306/checkmate"
+      GOOGLE_CLIENT_ID: ""
+      GOOGLE_CLIENT_SECRET: ""
+    autoscaling:
+      enabled: false
+      minReplicas: 2
+      maxReplicas: 5
+      targetCPUUtilizationPercentage:
+        enabled: true
+        percentage: 60
+      targetMemoryUtilizationPercentage:
+        enabled: false
+        percentage: 80
+    protocol: TCP
+    memoryLimit: 1024Mi
+    memoryRequest: 512Mi
+    cpuRequest: 0.5
+    cpuLimit: 1
+    replicaCount: 2
+    ssl: false
+    redisHost: null
+    liveliness:
+      failureThreshold: 5
+      initialDelaySeconds: 30
+      periodSeconds: 5
+      successThreshold: 1
+      timeoutSeconds: 5
+    readiness:
+      failureThreshold: 5
+      initialDelaySeconds: 30
+      periodSeconds: 5
+      successThreshold: 2
+      timeoutSeconds: 1
+    healthCheck:
+      port: 3000
+      path: healthcheck
+      scheme: HTTP
+    containerPort: 3000
+    servicePortName: http
+    pdb:
+      minAvailable: 70%
+    serviceType: NodePort

@@ -1,0 +1,36 @@
+name: Jira Comment on PR Approval
+
+on:
+  pull_request_review:
+    types:
+      - submitted
+
+jobs:
+  comment-on-pr-approval:
+    runs-on: self-hosted-cache
+
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+
+      - name: Install Dependencies
+        run: npm install -g @actions/core @actions/github axios
+      
+      - name: Extract Jira Issue Key
+        run: |
+          PR_TITLE=$(echo "${{ github.event.pull_request.title }}" | tr -d '\r')
+          echo "Extracted Jira Issue Key: $PR_TITLE"
+          echo "ISSUE_KEY=$(echo $PR_TITLE | grep -oP '\\b[A-Z]+-[0-9]+\\b')" >> $GITHUB_ENV
+          cat $GITHUB_ENV
+      - name: Add Comment to Jira
+        run: |
+          curl -s -H "Authorization: Basic ${{ secrets.JIRA_API_TOKEN }}" \
+                      -H "Content-Type: application/json" \
+                      -X POST \
+                      -d '{"body": "PR approved by ${{ github.event.review.user.login }}" }' \
+                      "https://dream11.atlassian.net/rest/api/2/issue/${{ env.ISSUE_KEY }}/comment"
+          echo "Comment added to Jira issue: $ISSUE_KEY"
+        env:
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}

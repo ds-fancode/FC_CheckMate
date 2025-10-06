@@ -1,0 +1,17 @@
+name: Closing Stale Issues,PRs and Branches
+
+on:
+  schedule:
+    - cron: '30 5 * * *'
+
+jobs:
+
+  staleBranches:
+    uses: ds-fancode/fc-github-actions/.github/workflows/stale-branches.yml@latest
+    secrets:
+      FC_GITHUB_STALE_ACTION: ${{ secrets.FC_GITHUB_STALE_ACTION }}
+
+  stalePRs:
+    uses: ds-fancode/fc-github-actions/.github/workflows/stale-prs.yml@latest
+    secrets:
+      FC_GITHUB_STALE_ACTION: ${{ secrets.FC_GITHUB_STALE_ACTION }}

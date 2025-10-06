@@ -1,0 +1,39 @@
+name: AI Review
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+on:
+  pull_request:
+  pull_request_review_comment:
+    types: [created]
+
+jobs:
+  review:
+    runs-on: self-hosted-cache
+
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: npm install -g @actions/core @actions/github axios
+
+      - name: Checkout ai-reviewer action
+        uses: actions/checkout@v4
+        with:
+          repository: ds-fancode/ai-reviewer
+          ref: v1.0.0
+          path: ai-reviewer
+          token: ${{ secrets.FC_GITHUB_ACTIONS_READ_PAT }}
+
+      - name: Run AI Reviewer
+        uses: ./ai-reviewer
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_MODEL: "gemini-2.5-pro-preview-05-06"

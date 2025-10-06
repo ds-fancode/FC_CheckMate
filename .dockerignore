@@ -16,3 +16,7 @@ playground.*
 .yarn
 .vscode
 coverage/*
+docs
+.git
+.github
+helm

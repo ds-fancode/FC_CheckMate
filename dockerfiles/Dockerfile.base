@@ -1,0 +1,31 @@
+FROM node:20.17.0
+
+# Create a dedicated non-root user
+ARG APP_USER=appuser
+ARG APP_UID=10001
+ARG APP_GID=10001
+
+RUN set -eux; \
+    groupadd -g ${APP_GID} ${APP_USER} && \
+    useradd -m -u ${APP_UID} -g ${APP_GID} -s /usr/sbin/nologin ${APP_USER} && \
+    mkdir -p /app && chown -R ${APP_USER}:${APP_USER} /app && \
+    mkdir -p /home/${APP_USER}/.yarn /home/${APP_USER}/.corepack && \
+    chown -R ${APP_USER}:${APP_USER} /home/${APP_USER}
+
+# Install minimal runtime tooling (dumb-init as PID 1)
+RUN set -eux; \
+    apt-get update && apt-get install -y --no-install-recommends dumb-init && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+ENV HOME=/home/${APP_USER}
+ENV YARN_CACHE_FOLDER=/home/${APP_USER}/.yarn
+ENV COREPACK_HOME=/home/${APP_USER}/.corepack
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+USER ${APP_USER}
+
+# Pre-download Yarn via Corepack for non-root user to speed builds
+RUN corepack prepare yarn@4.0.0
+
+# Use dumb-init as entrypoint to handle signals correctly
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]

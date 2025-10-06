@@ -1,0 +1,12 @@
+name: Title Check
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  run-pr-title-check:
+    uses: ds-fancode/fc-github-actions/.github/workflows/pr-title-lib.yml@master
+    with:
+      title: ${{ github.event.pull_request.title }}
+      baseBranch: ${{ github.event.pull_request.base.ref }}
