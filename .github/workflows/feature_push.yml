@@ -8,7 +8,7 @@ on:
 jobs:
 
   createAndUploadNodeDockerImage:
-    uses: ds-fancode/fc-github-actions/.github/workflows/createAndUploadNodeDockerImage.yml@latest
+    uses: ds-fancode/fc-github-actions/.github/workflows/createAndUploadNodeDockerImage.yml@master
     with:
       refVersion: latest
       baseRef: ${{github.ref_name}}
