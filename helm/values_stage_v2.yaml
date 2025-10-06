@@ -33,8 +33,8 @@ global:
   DNS: fancode-stag.local
 
   imageVersion:
-    service: fc-checkmate:3a865e2f4c9a3e46d0f1fbba329e89ee
-    servicemysql: fc-checkmate:mysql-v2
+    service: FC_CheckMate:3a865e2f4c9a3e46d0f1fbba329e89ee
+    servicemysql: FC_CheckMate:mysql-v2
 
   service:
     gatewayClassName: gke-l7-rilb
@@ -46,7 +46,7 @@ global:
       VPC_SUFFIX: stag
       NODE_ENV: k8s-stage
       LOG_LOCATION: /var/log/pm2
-      serviceName: fc-checkmate
+      serviceName: FC_CheckMate
       PLATFORM: k8s
       DB_URL: "mysql://fc-checkmate:{PASSWORD}@checkmate-db.fancode-stag.local:3306/checkmate"
       GOOGLE_CLIENT_ID: ""
