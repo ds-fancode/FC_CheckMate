@@ -1,13 +1,10 @@
-# Base image for Node.js 20.17.0 
-FROM node:20.17.0
+FROM ${REGISTRY}/node-base:20.17.0 AS runtime
 
 # Set working directory
 WORKDIR /app
 
-# Install required system dependencies for building native modules
-RUN apt-get update && apt-get install -y python3 build-essential
+# Base image already contains runtime tooling and non-root user
 
-# Reinstall dependencies and handle optional dependencies
 RUN corepack enable && corepack prepare yarn@4.0.0 --activate
 
 # Copy application code
@@ -17,3 +14,5 @@ RUN yarn install
 RUN yarn build
 
 EXPOSE 3000
+
+# Inherit non-root user from base image
