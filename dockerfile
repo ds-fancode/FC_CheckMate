@@ -1,3 +1,4 @@
+ARG REGISTRY=local
 FROM ${REGISTRY}/node-base:20.17.0 AS runtime
 
 # Set working directory
