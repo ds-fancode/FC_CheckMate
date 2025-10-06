@@ -7,11 +7,11 @@ on:
 jobs:
 
   staleBranches:
-    uses: ds-fancode/fc-github-actions/.github/workflows/stale-branches.yml@latest
+    uses: ds-fancode/fc-github-actions/.github/workflows/stale-branches.yml@master
     secrets:
       FC_GITHUB_STALE_ACTION: ${{ secrets.FC_GITHUB_STALE_ACTION }}
 
   stalePRs:
-    uses: ds-fancode/fc-github-actions/.github/workflows/stale-prs.yml@latest
+    uses: ds-fancode/fc-github-actions/.github/workflows/stale-prs.yml@master
     secrets:
       FC_GITHUB_STALE_ACTION: ${{ secrets.FC_GITHUB_STALE_ACTION }}

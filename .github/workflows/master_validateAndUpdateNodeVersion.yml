@@ -12,7 +12,7 @@ on:
 jobs:
 
   validateNodeVersion:
-    uses: ds-fancode/fc-github-actions/.github/workflows/validateNodeVersion.yml@latest
+    uses: ds-fancode/fc-github-actions/.github/workflows/validateNodeVersion.yml@master
     with:
       refVersion: latest
       baseRef: ${{github.base_ref}}

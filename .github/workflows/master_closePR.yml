@@ -10,7 +10,8 @@ on:
 jobs:
 
   createNodeGitTag:
-    uses: ds-fancode/fc-github-actions/.github/workflows/createNodeGitTag.yml@latest
+    if: github.event.pull_request.merged == true
+    uses: ds-fancode/fc-github-actions/.github/workflows/createNodeGitTag.yml@master
     with:
       refVersion: latest
       baseRef: ${{github.base_ref}}
@@ -21,7 +22,7 @@ jobs:
 
   createAndUploadNodeDockerImage:
     needs: createNodeGitTag
-    uses: ds-fancode/fc-github-actions/.github/workflows/createAndUploadNodeDockerImage.yml@latest
+    uses: ds-fancode/fc-github-actions/.github/workflows/createAndUploadNodeDockerImage.yml@master
     with:
       refVersion: latest
       baseRef: ${{github.base_ref}}
